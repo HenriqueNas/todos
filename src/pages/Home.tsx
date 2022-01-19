@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 import uuid from "react-native-uuid";
 
@@ -16,6 +16,32 @@ export function Home() {
       title: newTaskTitle,
       done: false,
     };
+
+    const taskWithSameTitle = tasks.filter(
+      (task) => task.title === newTaskTitle
+    );
+
+    if (taskWithSameTitle.length > 0) {
+      Alert.alert(
+        `Você já tem a tarefa ${newTaskTitle}`,
+        "Deseja mesmo criar mais uma tarefa?",
+        [
+          {
+            text: "Sim",
+            onPress: () => {
+              return setTasks((oldTasks) => [...oldTasks, newTask]);
+            },
+          },
+          {
+            text: "Não",
+            onPress: () => {
+              return;
+            },
+          },
+        ]
+      );
+      return;
+    }
 
     setTasks((oldTasks) => [...oldTasks, newTask]);
   }
@@ -34,6 +60,14 @@ export function Home() {
     setTasks(newTasks);
   }
 
+  function handleEditTask(id: string, title: string) {
+    const newTasks = tasks.map((task) => {
+      return task.id === id ? { ...task, title } : task;
+    });
+
+    setTasks(newTasks);
+  }
+
   return (
     <View style={styles.container}>
       <Header tasksCounter={tasks.length} />
@@ -44,6 +78,7 @@ export function Home() {
         tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
         removeTask={handleRemoveTask}
+        editTask={handleEditTask}
       />
     </View>
   );
